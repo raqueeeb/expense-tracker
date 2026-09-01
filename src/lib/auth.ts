@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 import { loginSchema } from "./validation";
+import { DUMMY_PASSWORD_HASH } from "./dummy-hash";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 7 },
@@ -16,9 +17,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const { email, password } = parsed.data;
 
         const user = await prisma.user.findUnique({ where: { email } });
-        // Compare against a dummy hash when the user does not exist so that a
+        // Compare against a real hash when the user does not exist so that a
         // missing account and a wrong password take the same time to answer.
-        const hash = user?.passwordHash ?? "$2b$10$invalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinv";
+        // This MUST be a syntactically valid bcrypt hash at the same cost as
+        // registration (12): bcrypt.compare() rejects a malformed hash in
+        // microseconds instead of doing the work, which would turn this line
+        // into the user-enumeration oracle it is meant to prevent.
+        // Guarded by src/lib/dummy-hash.test.ts.
+        const hash = user?.passwordHash ?? DUMMY_PASSWORD_HASH;
         const ok = await bcrypt.compare(password, hash);
         if (!user || !ok) return null;
 
