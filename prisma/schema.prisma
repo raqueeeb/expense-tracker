@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TxType {
+  INCOME
+  EXPENSE
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  UPI
+  NETBANKING
+  WALLET
+  OTHER
+}
+
+enum Currency {
+  INR
+  USD
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  currency     Currency @default(INR)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  categories   Category[]
+  transactions Transaction[]
+  budgets      Budget[]
+}
+
+// A category belongs to exactly one user. Defaults are copied per user at
+// registration so that renaming/deleting never leaks across accounts.
+model Category {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  type      TxType
+  isSystem  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@unique([userId, type, name])
+  @@index([userId, type])
+}
+
+model Transaction {
+  id            String        @id @default(cuid())
+  userId        String
+  type          TxType
+  // Stored in minor units (paise / cents) as an integer.
+  // Avoids binary floating point drift on money.
+  amountMinor   Int
+  categoryId    String
+  description   String
+  date          DateTime      @db.Date
+  paymentMethod PaymentMethod @default(CASH)
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@index([userId, date])
+  @@index([userId, type, date])
+  @@index([userId, categoryId])
+}
+
+model Budget {
+  id          String   @id @default(cuid())
+  userId      String
+  year        Int
+  month       Int // 1-12
+  amountMinor Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, year, month])
+  @@index([userId, year, month])
+}
