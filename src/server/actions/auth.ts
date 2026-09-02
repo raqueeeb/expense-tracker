@@ -32,8 +32,19 @@ export async function registerAction(_prev: ActionState, formData: FormData): Pr
     return fromUnknownError(e, "Could not create the account. Try again.");
   }
 
-  await signIn("credentials", { email, password, redirect: false });
-  redirect("/dashboard");
+  // The account now exists. If signing in fails anyway, send the user to the
+  // login page rather than an error boundary: reporting "could not create the
+  // account" would be false, and re-submitting would hit the duplicate-email
+  // branch. redirect() throws NEXT_REDIRECT, so it stays outside the try.
+  let signedIn = true;
+  try {
+    await signIn("credentials", { email, password, redirect: false });
+  } catch (e) {
+    console.error(e);
+    signedIn = false;
+  }
+
+  redirect(signedIn ? "/dashboard" : "/login");
 }
 
 export async function loginAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
