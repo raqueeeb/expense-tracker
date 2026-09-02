@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { saveBudget, deleteBudget } from "@/server/actions/budget";
 import { idleState } from "@/server/action-result";
+import { minorToDecimalString } from "@/lib/money";
 import { Alert, Button, Field, Input } from "@/components/ui";
 
 function Submit({ label }: { label: string }) {
@@ -47,7 +48,7 @@ export function BudgetForm({
             name="amount"
             inputMode="decimal"
             className="num"
-            defaultValue={currentMinor === null ? "" : (currentMinor / 100).toFixed(2)}
+            defaultValue={currentMinor === null ? "" : minorToDecimalString(currentMinor)}
             placeholder="0.00"
           />
         </Field>
