@@ -4,3 +4,8 @@ node_modules
 .env*.local
 *.tsbuildinfo
 next-env.d.ts
+
+# Local DB provisioning helper - machine-specific paths, not portable.
+# Contains no secrets; it generates them at runtime into .env.
+provision-db.ps1
+provision-db.ps1.*
