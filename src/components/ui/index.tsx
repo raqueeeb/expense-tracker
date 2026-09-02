@@ -84,16 +84,34 @@ export function Field({
   children: React.ReactNode;
 }) {
   const errorId = `${htmlFor}-error`;
+  const hintId = `${htmlFor}-hint`;
+  const hasError = Boolean(error?.length);
+  const showHint = Boolean(hint) && !hasError;
+
+  // The message lives in a sibling <p>, so without aria-describedby a screen
+  // reader announces the label but never the reason the field was rejected.
+  const describedBy = hasError ? errorId : showHint ? hintId : undefined;
+  const control = React.isValidElement<React.AriaAttributes>(children)
+    ? React.cloneElement(children, {
+        "aria-describedby": describedBy,
+        "aria-invalid": hasError ? true : undefined,
+      })
+    : children;
+
   return (
     <div className="space-y-1.5">
       <label htmlFor={htmlFor} className="block text-sm font-medium">
         {label}
       </label>
-      {children}
-      {hint && !error?.length ? <p className="text-xs text-ink-soft dark:text-slate-400">{hint}</p> : null}
-      {error?.length ? (
+      {control}
+      {showHint ? (
+        <p id={hintId} className="text-xs text-ink-soft dark:text-slate-400">
+          {hint}
+        </p>
+      ) : null}
+      {hasError ? (
         <p id={errorId} role="alert" className="text-xs font-medium text-debit">
-          {error[0]}
+          {error?.[0]}
         </p>
       ) : null}
     </div>
