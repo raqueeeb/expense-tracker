@@ -4,7 +4,7 @@ import { getCategories, listTransactions, type TransactionFilters as TxFilters }
 import { TransactionFilters } from "@/components/transaction-filters";
 import { TransactionList, type TransactionRow } from "@/components/transaction-list";
 import { AddTransactionButton } from "@/components/transaction-form";
-import { Button, Card, EmptyState } from "@/components/ui";
+import { Card, EmptyState } from "@/components/ui";
 
 export const metadata = { title: "Transactions — Ledgerly" };
 
