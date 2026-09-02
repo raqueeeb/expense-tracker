@@ -23,7 +23,14 @@ export function CategoryDonut({ data, currency }: { data: Slice[]; currency: Cur
               const minor = Number(value ?? 0);
               return [`${formatMoney(minor, currency)} (${safePercent(minor, total)}%)`, String(name ?? "")];
             }}
-            contentStyle={{ fontSize: 12, borderRadius: 8 }}
+            contentStyle={{
+              fontSize: 12,
+              borderRadius: 8,
+              background: "var(--chart-tooltip-bg)",
+              border: "1px solid var(--chart-tooltip-line)",
+              color: "var(--chart-tooltip-ink)",
+            }}
+            labelStyle={{ color: "var(--chart-tooltip-ink)" }}
           />
           <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: 12 }} />
         </PieChart>

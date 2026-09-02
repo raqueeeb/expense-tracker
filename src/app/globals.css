@@ -17,6 +17,25 @@
   :focus-visible {
     @apply outline-none ring-2 ring-brand ring-offset-2 ring-offset-surface dark:ring-offset-night;
   }
+  /*
+   * Recharts renders its tooltip with inline styles, so Tailwind's dark:
+   * variants cannot reach it and it falls back to a white box - unreadable on
+   * the dark surfaces. Custom properties can reach it: they resolve against the
+   * .dark class on <html> at paint time, so the tooltip follows the theme
+   * without reading it in JS (which would risk a hydration mismatch, since the
+   * server does not know the client's theme). Values come from the Tailwind
+   * palette so these colours keep one source of truth.
+   */
+  :root {
+    --chart-tooltip-bg: theme(colors.surface.DEFAULT);
+    --chart-tooltip-line: theme(colors.surface.line);
+    --chart-tooltip-ink: theme(colors.ink.DEFAULT);
+  }
+  .dark {
+    --chart-tooltip-bg: theme(colors.night.sunk);
+    --chart-tooltip-line: theme(colors.night.line);
+    --chart-tooltip-ink: theme(colors.slate.100);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

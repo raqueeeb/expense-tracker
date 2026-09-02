@@ -23,7 +23,15 @@ export function TrendChart({ data, currency }: { data: TrendDatum[]; currency: C
               formatMoney(Number(value ?? 0), currency),
               name === "income" ? "Income" : "Expenses",
             ]}
-            contentStyle={{ fontSize: 12, borderRadius: 8 }}
+            contentStyle={{
+              fontSize: 12,
+              borderRadius: 8,
+              background: "var(--chart-tooltip-bg)",
+              border: "1px solid var(--chart-tooltip-line)",
+              color: "var(--chart-tooltip-ink)",
+            }}
+            labelStyle={{ color: "var(--chart-tooltip-ink)" }}
+            cursor={{ fill: "currentColor", opacity: 0.08 }}
           />
           <Legend wrapperStyle={{ fontSize: 12 }} formatter={(v) => (v === "income" ? "Income" : "Expenses")} />
           <Bar dataKey="income" fill="#1f7a53" radius={[3, 3, 0, 0]} />
