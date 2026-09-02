@@ -8,6 +8,7 @@ import { Plus } from "lucide-react";
 import type { z } from "zod";
 import { transactionSchema } from "@/lib/validation";
 import { minorToDecimalString } from "@/lib/money";
+import { buildTransactionFormData } from "@/lib/transaction-payload";
 import { idleState } from "@/server/action-result";
 import { createTransaction, updateTransaction } from "@/server/actions/transactions";
 import { Modal } from "@/components/modal";
@@ -84,9 +85,10 @@ export function TransactionForm({
 
   const onSubmit = handleSubmit((values: ParsedValues) => {
     setServerError(null);
-    const fd = new FormData();
-    for (const [k, v] of Object.entries(values)) fd.set(k, String(v ?? ""));
-    if (transaction) fd.set("id", transaction.id);
+    // buildTransactionFormData converts the amount back to a decimal string.
+    // `values` has already been through the schema's transform, and the server
+    // action runs that same transform again on what it receives.
+    const fd = buildTransactionFormData(values, transaction?.id);
 
     startTransition(async () => {
       const result = transaction
