@@ -64,6 +64,18 @@ export function TransactionList({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
+  /**
+   * The error belongs to the dialog, so it has to be cleared with the dialog.
+   * Clearing it only on confirm meant a failed delete left the message mounted
+   * after "Keep it", and it then reappeared above a *different* row's
+   * confirmation - an error about a transaction the user was no longer
+   * looking at.
+   */
+  const closeDelete = () => {
+    setDeleting(null);
+    setError(null);
+  };
+
   const confirmDelete = () => {
     if (!deleting) return;
     setError(null);
@@ -75,7 +87,7 @@ export function TransactionList({
         setError(result.error ?? "Could not delete this transaction.");
         return;
       }
-      setDeleting(null);
+      closeDelete();
       router.refresh();
     });
   };
@@ -172,7 +184,7 @@ export function TransactionList({
         />
       ) : null}
 
-      <Modal open={Boolean(deleting)} onClose={() => setDeleting(null)} title="Delete this transaction?">
+      <Modal open={Boolean(deleting)} onClose={closeDelete} title="Delete this transaction?">
         {error ? <Alert>{error}</Alert> : null}
         <p className="text-sm text-ink-soft dark:text-slate-400">
           {deleting ? `“${deleting.description}” will be removed from your ledger. This cannot be undone.` : ""}
@@ -181,7 +193,7 @@ export function TransactionList({
           <Button variant="danger" onClick={confirmDelete} disabled={pending}>
             {pending ? "Deleting…" : "Delete transaction"}
           </Button>
-          <Button variant="secondary" onClick={() => setDeleting(null)}>
+          <Button variant="secondary" onClick={closeDelete}>
             Keep it
           </Button>
         </div>
