@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/session";
-import { getCategories, listTransactions } from "@/lib/queries";
+import { getCategories, listTransactions, type TransactionFilters as TxFilters } from "@/lib/queries";
 import { TransactionFilters } from "@/components/transaction-filters";
 import { TransactionList, type TransactionRow } from "@/components/transaction-list";
 import { AddTransactionButton } from "@/components/transaction-form";
@@ -17,7 +17,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
   const user = await requireUser();
   const sp = await searchParams;
 
-  const filters = {
+  const filters: TxFilters = {
     q: sp.q?.trim() || undefined,
     type: sp.type === "INCOME" || sp.type === "EXPENSE" ? sp.type : ("ALL" as const),
     categoryId: sp.categoryId || undefined,
