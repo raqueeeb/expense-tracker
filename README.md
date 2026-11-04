@@ -1,3 +1,5 @@
+📘 **Case study:** [raqueeb.dev/projects/expense-tracker](https://raqueeb.dev/projects/expense-tracker) — architecture, stack and implementation notes.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
