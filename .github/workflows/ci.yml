@@ -1,0 +1,43 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    name: "typecheck, lint, test, build"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["20.x", "22.x"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      # `npm ci` runs the postinstall hook, which generates the Prisma client.
+      # Without it the generated types do not exist and typecheck fails on a
+      # clean checkout with about thirty errors.
+      - name: "install"
+        run: npm ci
+
+      - name: "typecheck"
+        run: npm run typecheck
+
+      - name: "lint"
+        run: npm run lint
+
+      # The suites that need a live database skip themselves when
+      # DATABASE_URL is unset, so this runs the pure logic without standing a
+      # server up. Point DATABASE_URL at a Postgres service to include them.
+      - name: "tests"
+        run: npm run test
+
+      - name: "build"
+        run: npm run build
